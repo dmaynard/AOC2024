@@ -6,7 +6,7 @@ work day part:
 lint day:
     cargo clippy -p {{day}}
 test day part:
-    cargo nextest run -p {{day}} {{part}}
+    cargo nextest run -p {{day}} {{part}} - --nocapture
 bench-all:
     cargo bench -q > benchmarks.txt
 bench day part:

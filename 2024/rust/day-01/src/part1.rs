@@ -5,16 +5,13 @@ pub fn process(input: &str) -> miette::Result<String> {
 
     for line in input.lines() {
         let mut items = line.split_whitespace();
-        left.push(
-            items.next().unwrap().parse::<i32>().unwrap(),
-        );
-        right.push(
-            items.next().unwrap().parse::<i32>().unwrap(),
-        );
+        left.push(items.next().unwrap().parse::<i32>().unwrap());
+        right.push(items.next().unwrap().parse::<i32>().unwrap());
     }
-
     left.sort();
     right.sort();
+
+    dbg!(&left, &right);
 
     let result: i32 = std::iter::zip(left, right)
         .map(|(l, r)| (l - r).abs())
@@ -29,6 +26,7 @@ mod tests {
 
     #[test]
     fn test_process() -> miette::Result<()> {
+        // todo!("haven't built test yet");
         let input = "3   4
 4   3
 2   5

@@ -5,23 +5,13 @@ pub fn process(input: &str) -> miette::Result<String> {
 
     for line in input.lines() {
         let mut items = line.split_whitespace();
-        left.push(
-            items.next().unwrap().parse::<usize>().unwrap(),
-        );
-        right.push(
-            items.next().unwrap().parse::<usize>().unwrap(),
-        );
+        left.push(items.next().unwrap().parse::<usize>().unwrap());
+        right.push(items.next().unwrap().parse::<usize>().unwrap());
     }
 
     let result: usize = left
         .iter()
-        .map(|number| {
-            number
-                * right
-                    .iter()
-                    .filter(|r| &number == r)
-                    .count()
-        })
+        .map(|number| number * right.iter().filter(|r| &number == r).count())
         .sum();
 
     Ok(result.to_string())
@@ -33,6 +23,7 @@ mod tests {
 
     #[test]
     fn test_process() -> miette::Result<()> {
+        // todo!("haven't built test yet");
         let input = "3   4
 4   3
 2   5

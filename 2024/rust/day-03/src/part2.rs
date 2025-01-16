@@ -8,70 +8,55 @@ use nom::{
     sequence::{delimited, separated_pair},
     IResult, Parser,
 };
-
-#[tracing::instrument]
-pub fn process(input: &str) -> miette::Result<String> {
-    let (_input, instructions) = parse(input)
-        .map_err(|e| miette!("parse failed {}", e))?;
-
-    let (_, result) = instructions.iter().fold(
-        (ShouldProcess::Do, 0),
-        |(process, acc), ins| match ins {
-            Instruction::Mul(a, b) => {
-                if process == ShouldProcess::Do {
-                    (process, acc + a * b)
-                } else {
-                    (process, acc)
-                }
-            }
-            Instruction::Do => (ShouldProcess::Do, acc),
-            Instruction::Dont => (ShouldProcess::Dont, acc),
-        },
-    );
-
-    Ok(result.to_string())
-}
-
-#[derive(PartialEq, Eq)]
-enum ShouldProcess {
-    Do,
-    Dont,
-}
-
-#[derive(Debug, Clone)]
-enum Instruction {
+use tracing::info;
+#[derive(Copy, Clone, Debug)]
+enum InstructionSet {
     Mul(u32, u32),
     Do,
     Dont,
 }
+// #[tracing::instrument]
+// #[tracing::instrument]
+pub fn process(input: &str) -> miette::Result<String> {
+    let (_input, instructions) = parse(input).map_err(|e| miette!("parse failed {}", e))?;
+    info!("processing input ");
+    // dbg!(&instructions);
+    let mut scale: u32 = 1;
+    let result: u32 = instructions
+        .iter()
+        .map(|ins| match ins {
+            InstructionSet::Mul(a, b) => a * b * scale,
+            InstructionSet::Do => {
+                scale = 1;
+                0
+            }
+            InstructionSet::Dont => {
+                scale = 0;
+                0
+            }
+        })
+        .sum();
+    Ok(result.to_string())
+}
 
-fn mul(input: &str) -> IResult<&str, Instruction> {
+fn mul(input: &str) -> IResult<&str, InstructionSet> {
     let (input, _) = tag("mul")(input)?;
     let (input, pair) = delimited(
         tag("("),
-        separated_pair(
-            complete::u32,
-            tag(","),
-            complete::u32,
-        ),
+        separated_pair(complete::u32, tag(","), complete::u32),
         tag(")"),
     )(input)?;
-    Ok((input, Instruction::Mul(pair.0, pair.1)))
+    Ok((input, InstructionSet::Mul(pair.0, pair.1)))
 }
-
-fn instruction(input: &str) -> IResult<&str, Instruction> {
+fn instruction(input: &str) -> IResult<&str, InstructionSet> {
     alt((
-        value(Instruction::Dont, tag("don't()")),
-        value(Instruction::Do, tag("do()")),
+        value(InstructionSet::Dont, tag("don't()")),
+        value(InstructionSet::Do, tag("do()")),
         mul,
     ))(input)
 }
-
-fn parse(input: &str) -> IResult<&str, Vec<Instruction>> {
-    many1(
-        many_till(anychar, instruction)
-            .map(|(_discard, ins)| ins),
-    )(input)
+fn parse(input: &str) -> IResult<&str, Vec<InstructionSet>> {
+    many1(many_till(anychar, instruction).map(|(_discard, ins)| ins))(input)
 }
 
 #[cfg(test)]
