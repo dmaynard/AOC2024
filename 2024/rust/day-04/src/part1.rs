@@ -14,7 +14,7 @@ const DIRECTIONS: [[IVec2; 3]; 8] = [
 ];
 
 #[tracing::instrument(skip(input))]
-pub fn process(input: &str) -> miette::Result<String> {
+pub fn orig_process(input: &str) -> miette::Result<String> {
     let positions = input
         .lines()
         .enumerate()
@@ -29,7 +29,7 @@ pub fn process(input: &str) -> miette::Result<String> {
     let result: usize = positions
         .iter()
         .filter(|(_position, value)| **value == 'X')
-        .map(|(position, value)| {
+        .map(|(position, _value)| {
             let count = DIRECTIONS
                 .iter()
                 .map(|mas_positions| {
@@ -41,10 +41,32 @@ pub fn process(input: &str) -> miette::Result<String> {
                 })
                 .filter(|b| *b)
                 .count();
-            info!(?position, ?value, count);
+            // info!(?position, ?value, count);
             count
         })
         .sum();
+
+    Ok(result.to_string())
+}
+pub fn get_char(char_matrix: Vec<char>, x: i32, y: i32) -> char {
+    '*'
+}
+
+pub fn process(input: &str) -> miette::Result<String> {
+    let matrix: Vec<&str> = input.lines().collect();
+    // let chars: <Vec<Vec<char>> = matrix.iter().map(|s| s.chars()).collect::<Vec<Vec<char>>>();
+    let mut chars: Vec<char> = [].to_vec();
+    for line in &matrix {
+        for char in line.chars() {
+            chars.push(char)
+        }
+    }
+    let result = "18";
+    let w = matrix[0].len();
+    let h = matrix.len();
+    info!(" w {} h {}", w, h);
+
+    info!(?matrix, ?chars, " {} {}", matrix.len(), chars.len());
 
     Ok(result.to_string())
 }
@@ -67,6 +89,19 @@ SAXAMASAAA
 MAMMMXMMMM
 MXMXAXMASX";
         assert_eq!("18", process(input)?);
+        Ok(())
+    }
+
+    #[test_log::test]
+
+    fn test_indexing() -> miette::Result<()> {
+        const A: [u32; 5] = [0, 1, 2, 3, 4];
+        let mut index: usize = 0;
+        index = index + 1;
+        let value = A[index];
+        info!("A[index]{}", A[index]);
+
+        assert_eq!(1, value);
         Ok(())
     }
 }
