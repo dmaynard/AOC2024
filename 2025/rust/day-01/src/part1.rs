@@ -19,10 +19,10 @@ pub fn process(input: &str) -> miette::Result<String> {
             |(dial, counter),direction| {
                 let num = match *direction {
                     Direction::Left(num) => -num,
-                    Direction::Right(num) => num,
+                    Direction::Right(num) =>num,
                 };
                 let next_dial =
-                    (dial - num).rem_euclid(100);
+                    (dial - num) % (100);
                 let additional_counters =
                     if next_dial == 0 { 1 } else { 0 };
                 (next_dial, counter + additional_counters)
