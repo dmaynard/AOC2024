@@ -161,37 +161,33 @@ pub fn process_c(input: &str) -> miette::Result<String> {
     let mut total_removed = 0;
 
     loop {
-        // Collect indices of positions to remove
-        let to_remove: Vec<usize> = positions
-            .iter()
-            .enumerate()
-            .filter(|(idx, position)| {
-                // Only check positions that are still active
-                active[*idx] && {
-                    NEIGHBORS
-                        .iter()
-                        .filter(|&offset| {
-                            let neighbor_pos = *position + *offset;
-                            // Just check if there's a roll at that position (no need to check if neighbor is active)
-                            floor[neighbor_pos.y as usize][neighbor_pos.x as usize] == 1
-                        })
-                        .count()
-                        < 4
-                }
-            })
-            .map(|(idx, _)| idx)
-            .collect();
+        let mut any_removed = false;
 
-        if to_remove.is_empty() {
-            break;
+        // Iterate through all positions and remove them immediately if they have < 4 neighbors
+        for (idx, position) in positions.iter().enumerate() {
+            // Only check positions that are still active
+            if active[idx] {
+                let neighbor_count = NEIGHBORS
+                    .iter()
+                    .filter(|&offset| {
+                        let neighbor_pos = *position + *offset;
+                        // Just check if there's a roll at that position
+                        floor[neighbor_pos.y as usize][neighbor_pos.x as usize] == 1
+                    })
+                    .count();
+
+                if neighbor_count < 4 {
+                    // Remove immediately: set boolean to false and update grid
+                    active[idx] = false;
+                    floor[position.y as usize][position.x as usize] = 0;
+                    total_removed += 1;
+                    any_removed = true;
+                }
+            }
         }
 
-        total_removed += to_remove.len();
-        for idx in to_remove {
-            // Mark as removed: set boolean to false and update grid
-            active[idx] = false;
-            let pos = positions[idx];
-            floor[pos.y as usize][pos.x as usize] = 0;
+        if !any_removed {
+            break;
         }
     }
 

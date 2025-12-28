@@ -13,7 +13,7 @@ fn main() -> miette::Result<()> {
     let result = process_b(file).context("process part 2")?;
     println!("b {}", result);
     let result = process_c(file).context("process part 2")?;
-    println!("b {}", result);
+    println!("c {}", result);
 
     Ok(())
 }
